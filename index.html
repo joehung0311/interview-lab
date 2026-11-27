@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>baihua AI 面試作戰室｜白話實驗室</title>
+  <meta name="description" content="別只帶著履歷去面試，帶著你的思考方式去面試。免費、免登入、免 API Key 的面試準備提示詞產生器。">
+  <meta name="theme-color" content="#1F3A5F">
+  <!-- 版本管理：更新時請同步修改 ?v= 與 app.js 內的 APP_VERSION -->
+  <link rel="stylesheet" href="style.css?v=1.0.2">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要內容</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <button type="button" class="brand" data-action="go-home" aria-label="回到首頁">
+        <span class="brand-lab">白話實驗室 baihua</span>
+        <span class="brand-app">AI 面試作戰室</span>
+      </button>
+      <button type="button" class="chip chip-storage" data-action="toggle-storage" id="storage-chip" aria-live="polite">本機儲存：關閉</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ===================== 首頁 ===================== -->
+    <section id="view-home" class="view" aria-labelledby="home-title">
+      <div class="hero">
+        <p class="hero-kicker">白話實驗室 baihua｜求職者的面試準備工具</p>
+        <h1 id="home-title">baihua AI 面試作戰室</h1>
+        <p class="hero-sub">別只準備答案，更要準備你的思考方式。</p>
+        <p class="hero-features">認識企業 × 分析職缺 × 整理能力 × 模擬面試 × 生成專屬面試提案</p>
+        <p class="hero-tagline">別只帶著履歷去面試，帶著你的思考方式去面試。</p>
+      </div>
+
+      <div class="card resume-card" id="resume-card" hidden>
+        <p>這台裝置上有你上次保存的資料。</p>
+        <button type="button" class="btn btn-primary" data-action="resume">繼續上次進度</button>
+      </div>
+
+      <h2 class="section-title">選一條路線開始</h2>
+      <div class="route-grid">
+        <article class="card route-card">
+          <h3>快速模式</h3>
+          <p class="route-for">適合：時間有限、很快就要面試</p>
+          <ul class="plain-list">
+            <li>只顯示最重要的欄位，其他欄位收起來</li>
+            <li>預設 4 位顧問：人資、部門主管、職涯教練、反方審查員</li>
+            <li>預設產出：企業研究、職務適配、模擬面試</li>
+          </ul>
+          <button type="button" class="btn btn-primary" data-action="start" data-route="quick">用快速模式開始</button>
+        </article>
+        <article class="card route-card">
+          <h3>完整模式</h3>
+          <p class="route-for">適合：想深入研究企業、做客製化面試作品集</p>
+          <ul class="plain-list">
+            <li>所有欄位直接展開</li>
+            <li>預設完整顧問團（8 位角色）</li>
+            <li>預設全部產出，包含「面試三張圖」</li>
+          </ul>
+          <button type="button" class="btn btn-secondary" data-action="start" data-route="full">用完整模式開始</button>
+        </article>
+      </div>
+      <p class="hint center">兩種模式的功能相同，只差在一開始顯示多少欄位、預先勾選哪些項目，隨時可以切換。</p>
+
+      <div class="card explain-card">
+        <h2 class="section-title">先說清楚：這個工具會做什麼、不會做什麼</h2>
+        <div class="two-col">
+          <div>
+            <h3 class="ok-title">會做</h3>
+            <ul class="plain-list">
+              <li>一步一步帶你整理公司、職缺與自己的資料</li>
+              <li>幫你寫好一份完整的「提示詞」，讓你交給 ChatGPT、Claude 或 Gemini 執行</li>
+              <li>把 AI 的分析結果，轉成三張面試資訊圖表的繪圖提示詞</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="no-title">不會做</h3>
+            <ul class="plain-list">
+              <li>不會自己上網查公司，也不會自動呼叫 AI</li>
+              <li>不會替你編經歷、編數字，也不會替你回答面試</li>
+              <li>不會把你的資料傳到任何伺服器</li>
+            </ul>
+          </div>
+        </div>
+        <p class="hint"><b>白話：</b>提示詞（Prompt）就是你交給 AI 的「工作指示單」。指示寫得越清楚，AI 越不會亂猜。</p>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">第一次用？先看示範案例</h2>
+        <p class="hint">以下六組涵蓋行政、門市、製造、會計、新鮮人與 AI 轉職，都是<strong>虛構案例</strong>，公司、人物、經歷與數據都是編的，只用來體驗操作流程。</p>
+        <div class="demo-pick">
+          <label for="home-demo-select" class="sr-only">選擇示範案例</label>
+          <select id="home-demo-select" class="inline-select demo-select" data-options="demos"></select>
+          <button type="button" class="btn btn-secondary" data-action="load-demo-home">載入這個案例</button>
+        </div>
+        <p class="hint" id="home-demo-desc"></p>
+      </div>
+
+      <div class="card privacy-card">
+        <h2 class="section-title">個人資料與安全</h2>
+        <ul class="plain-list">
+          <li>不需要身分證字號、生日、地址或電話，也請不要填。</li>
+          <li>請不要貼上任何公司機密或客戶個資。</li>
+          <li>資料只存在你這台裝置的瀏覽器。「本機儲存」預設關閉，你同意後才會開啟。</li>
+          <li>隨時可以在 STEP 06 一鍵清除資料。</li>
+          <li>本工具不會上傳你的資料；但你把提示詞貼到 ChatGPT、Claude、Gemini 之後，資料如何被使用，由各平台自己的隱私政策決定。</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================== 六步驟 ===================== -->
+    <section id="view-steps" class="view" hidden>
+      <nav class="stepper" aria-label="步驟進度">
+        <ol id="stepper-list">
+          <li><button type="button" data-goto="1"><span class="num">01</span><span class="lbl">公司</span></button></li>
+          <li><button type="button" data-goto="2"><span class="num">02</span><span class="lbl">職缺</span></button></li>
+          <li><button type="button" data-goto="3"><span class="num">03</span><span class="lbl">我的能力</span></button></li>
+          <li><button type="button" data-goto="4"><span class="num">04</span><span class="lbl">顧問團</span></button></li>
+          <li><button type="button" data-goto="5"><span class="num">05</span><span class="lbl">成果</span></button></li>
+          <li><button type="button" data-goto="6"><span class="num">06</span><span class="lbl">生成匯出</span></button></li>
+        </ol>
+        <div class="progress" aria-hidden="true"><div class="progress-bar" id="progress-bar"></div></div>
+      </nav>
+
+      <div class="mode-bar">
+        <span>目前路線：<strong id="route-label">快速模式</strong></span>
+        <button type="button" class="link-btn" data-action="switch-route" id="route-switch">切換為完整模式</button>
+      </div>
+
+      <!-- STEP 01 -->
+      <section class="step" data-step="1" aria-labelledby="s1-title">
+        <h2 id="s1-title" tabindex="-1"><span class="step-no">STEP 01</span>認識應徵公司或機構</h2>
+        <p class="step-intro">先寫下你目前知道的就好，不知道的可以留空，之後交給 AI 查詢。</p>
+        <p class="hint">標示<span class="tag-rec">建議填寫</span>的欄位會讓分析更準確；沒有標示的都是選填，可以略過。回到上一步修改時，已填的內容都會保留。</p>
+        <div class="card">
+          <div class="field">
+            <label for="f-company-name">公司或機構名稱 <span class="tag-rec">建議填寫</span></label>
+            <input id="f-company-name" type="text" data-bind="company.name" placeholder="請輸入應徵公司或機構名稱" autocomplete="organization">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="f-industry">所屬產業</label>
+              <select id="f-industry" data-bind="company.industry" data-options="industries"></select>
+            </div>
+            <div class="field">
+              <label for="f-orgtype">組織型態</label>
+              <select id="f-orgtype" data-bind="company.orgType" data-options="orgTypes"></select>
+            </div>
+          </div>
+          <div class="field" data-show-if="industry-detail">
+            <label for="f-industry-detail">細分（選填）</label>
+            <select id="f-industry-detail" data-bind="company.industryDetail" data-options="industryDetails"></select>
+          </div>
+          <div class="field" data-show-if="industry-other">
+            <label for="f-industry-other">產業說明</label>
+            <input id="f-industry-other" type="text" data-bind="company.industryOther" placeholder="例：寵物用品、殯葬服務">
+          </div>
+          <p class="hint" data-show-if="org-mission">這類組織會以「組織使命、服務對象與職務價值」來分析，不會強迫套用獲利模式。</p>
+          <p class="hint">產業分類是參考台灣常見求職平台用語自行整理，不是任何求職平台的官方分類。</p>
+          <div class="field">
+            <label for="f-company-web">官方網站</label>
+            <input id="f-company-web" type="url" inputmode="url" data-bind="company.website" placeholder="https://">
+          </div>
+          <details class="more" data-more>
+            <summary>更多欄位（選填）</summary>
+            <div class="field">
+              <label for="f-products">主要產品或服務</label>
+              <textarea id="f-products" rows="3" data-bind="company.products" placeholder="例：商品銷售、餐飲服務、軟體開發、設備製造、教育服務"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-intro">公開介紹</label>
+              <textarea id="f-intro" rows="4" data-bind="company.intro" data-count placeholder="可貼上官網「關於我們」或招募頁的公司簡介"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-joburl">求職平台或招募頁網址</label>
+              <input id="f-joburl" type="url" inputmode="url" data-bind="company.jobUrl" placeholder="例：104、1111、yes123、Cake、LinkedIn 或公司官方招募頁">
+            </div>
+            <div class="field">
+              <label for="f-other">其他公開資料</label>
+              <textarea id="f-other" rows="3" data-bind="company.other" placeholder="例：公司官網、新聞報導、公開財報、招募資訊的網址或重點"></textarea>
+            </div>
+          </details>
+          <p class="warn-note">請只貼公開資料，不要貼公司機密或客戶個資。</p>
+        </div>
+      </section>
+
+      <!-- STEP 02 -->
+      <section class="step" data-step="2" aria-labelledby="s2-title" hidden>
+        <h2 id="s2-title" tabindex="-1"><span class="step-no">STEP 02</span>認識應徵職缺</h2>
+        <p class="step-intro">職缺說明寫得越完整，AI 越能判斷這個職位真正需要什麼樣的人。</p>
+        <div class="card">
+          <div class="field">
+            <label for="f-title">應徵職稱 <span class="tag-rec">建議填寫</span></label>
+            <input id="f-title" type="text" data-bind="job.title" placeholder="例：行政助理、業務專員、會計人員、門市服務、工程師">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="f-jobcat">職務分類</label>
+              <select id="f-jobcat" data-bind="job.jobCategory" data-options="jobCategories"></select>
+            </div>
+            <div class="field">
+              <label for="f-worktype">工作型態</label>
+              <select id="f-worktype" data-bind="job.workType" data-options="workTypes"></select>
+            </div>
+          </div>
+          <p class="hint"><b>白話：</b>「產業」是公司在做哪一行，「職務」是你要做的工作。例如製造業公司也會招募會計或業務，技能建議會以職務和職缺內容為準。</p>
+          <div class="field">
+            <label for="f-jd">職缺工作內容（可直接貼上完整 JD）</label>
+            <p class="hint"><b>白話：</b>JD 是 Job Description（職缺說明），就是徵才頁上「工作內容、條件」那一段，整段貼上就可以，不用先整理。</p>
+            <textarea id="f-jd" rows="8" data-bind="job.jd" data-count placeholder="整段貼上即可"></textarea>
+          </div>
+          <fieldset class="field">
+            <legend>面試情境（可跨組複選）</legend>
+            <p class="hint">階段、面試官和面試方式是不同的事，可以各選一個以上；不知道就選「尚未確定」或略過。</p>
+            <div id="formats-groups" data-group="job.formats" data-options="formatGroups" class="format-groups"></div>
+          </fieldset>
+          <details class="more" data-more>
+            <summary>更多欄位（選填）</summary>
+            <div class="field">
+              <label for="f-required">必備條件</label>
+              <textarea id="f-required" rows="3" data-bind="job.required" placeholder="JD 裡寫「必備」或「必要條件」的部分"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-bonus">加分條件</label>
+              <textarea id="f-bonus" rows="3" data-bind="job.bonus" placeholder="JD 裡寫「加分」或「優先」的部分"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-years">工作經歷要求</label>
+              <input id="f-years" type="text" data-bind="job.years" placeholder="例：不拘、1 年以上">
+            </div>
+            <div class="field">
+              <label for="f-questions">特別想了解的問題</label>
+              <textarea id="f-questions" rows="3" data-bind="job.questions" placeholder="例：新人會有多久的訓練？主要和哪些部門合作？"></textarea>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- STEP 03 -->
+      <section class="step" data-step="3" aria-labelledby="s3-title" hidden>
+        <h2 id="s3-title" tabindex="-1"><span class="step-no">STEP 03</span>建立個人能力檔案</h2>
+        <p class="step-intro">只寫真的做過、真的會的。提示詞會要求 AI 不得捏造你沒提供的經歷、技能或證照。</p>
+        <div class="card">
+          <fieldset class="field">
+            <legend>你的求職情境</legend>
+            <div class="choice-grid choice-grid-2" data-radio="profile.scenario" data-options="scenarios"></div>
+            <p class="hint">不需要填年齡或出生日期。</p>
+          </fieldset>
+          <div class="field">
+            <label for="f-exp">過往經歷</label>
+            <textarea id="f-exp" rows="5" data-bind="profile.experience" data-count placeholder="請簡述曾任職的產業、職務、主要工作內容及實際成果。沒有正式工作經驗，也可以填寫實習、課業專題、志工、社團或其他相關經歷。"></textarea>
+          </div>
+
+          <fieldset class="field skills-field">
+            <legend>我的技能</legend>
+            <p class="hint">技能會分成「工具與軟體、專業工作技能、通用職場能力、語言能力」整理。熟練程度可以不填；沒填的，提示詞會要求 AI 不得自行判定程度。</p>
+
+            <div class="skill-selected">
+              <div class="skill-selected-head">
+                <strong>已選技能 <span id="skill-count">0</span> 項</strong>
+                <button type="button" class="link-btn" data-action="skills-clear">一鍵清除</button>
+              </div>
+              <p class="hint" id="skill-empty">還沒有技能。可以貼上履歷的技能文字，或在下方依分類選擇。</p>
+              <ul id="skill-list" class="skill-list"></ul>
+            </div>
+
+            <div class="skill-paste">
+              <label for="f-skill-paste">快速貼上技能文字</label>
+              <p class="hint">可以從自己的履歷（例如 104、1111）複製技能那一段貼上。頓號、逗號、分號、換行或項目符號都可以。本工具不會連線到任何求職平台。</p>
+              <textarea id="f-skill-paste" rows="3" placeholder="例：Excel、Word、客戶服務；英文"></textarea>
+              <div class="btn-row"><button type="button" class="btn btn-small btn-secondary" data-action="skills-parse">整理成技能清單</button></div>
+              <div id="skill-paste-preview" class="skill-paste-preview" hidden>
+                <p class="hint">請確認要加入的技能（已去除空白與重複）：</p>
+                <div id="skill-paste-items" class="chip-wrap"></div>
+                <div class="btn-row">
+                  <button type="button" class="btn btn-small btn-primary" data-action="skills-paste-add">加入勾選的技能</button>
+                  <button type="button" class="btn btn-small btn-ghost" data-action="skills-paste-cancel">取消</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="skill-suggest" id="skill-suggest">
+              <p class="sub-label">職缺可能需要的技能</p>
+              <p class="hint">依 STEP 02 的職務分類、職稱與 JD 推薦，<strong>只代表職缺可能需要，不代表你已具備</strong>。你真的會的再點選加入。</p>
+              <div id="skill-suggest-items" class="chip-wrap"></div>
+            </div>
+
+            <details class="more skill-picker" data-more>
+              <summary>依分類選擇技能</summary>
+              <label for="skill-search" class="sr-only">搜尋技能</label>
+              <input id="skill-search" type="search" placeholder="搜尋技能，例如 Excel、客訴、品質" autocomplete="off">
+              <div id="skill-cats" class="skill-cats" aria-label="技能分類"></div>
+              <p class="hint" id="skill-cat-note"></p>
+              <div id="skill-options" class="chip-wrap"></div>
+              <div class="skill-custom">
+                <label for="skill-custom-input" class="sr-only">自訂技能</label>
+                <input id="skill-custom-input" type="text" placeholder="清單裡沒有？輸入自訂技能">
+                <button type="button" class="btn btn-small btn-ghost" data-action="skills-add-custom">新增</button>
+              </div>
+            </details>
+          </fieldset>
+
+          <div class="field">
+            <label for="f-strengths">個人優勢</label>
+            <textarea id="f-strengths" rows="3" data-bind="profile.strengths" placeholder="例：細心、溝通有耐心、遇到問題會主動追原因"></textarea>
+          </div>
+          <details class="more" data-more>
+            <summary>更多欄位（選填）</summary>
+            <div class="field">
+              <label for="f-certs">專業證照與研習</label>
+              <textarea id="f-certs" rows="2" data-bind="profile.certs"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-portfolio">作品集網址（選填）</label>
+              <input id="f-portfolio" type="url" inputmode="url" data-bind="profile.portfolio" placeholder="https://">
+              <p class="hint">不是所有職務都需要作品集。沒有的話可以略過，改在下一欄寫其他佐證。</p>
+            </div>
+            <div class="field">
+              <label for="f-evidence">其他可佐證能力的資料（選填）</label>
+              <textarea id="f-evidence" rows="2" data-bind="profile.evidence" placeholder="例：工作成果說明、實習經歷、專題作品、志工經驗、專業證照"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-skillnotes">技能補充說明（選填）</label>
+              <textarea id="f-skillnotes" rows="2" data-bind="profile.skillNotes" placeholder="例：用過哪些儀器或系統、在什麼情況下使用"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-improve">希望補強的能力</label>
+              <textarea id="f-improve" rows="2" data-bind="profile.improve"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-reason">求職／應徵動機（選填）</label>
+              <p class="hint" id="reason-hint"></p>
+              <textarea id="f-reason" rows="2" data-bind="profile.reason"></textarea>
+              <p class="hint">不需要說明家庭、健康或離職細節。</p>
+            </div>
+            <div class="field">
+              <label for="f-goal">職涯目標</label>
+              <textarea id="f-goal" rows="2" data-bind="profile.goal"></textarea>
+            </div>
+          </details>
+          <p class="warn-note">不用填身分證字號、生日、地址或電話。</p>
+        </div>
+      </section>
+
+      <!-- STEP 04 -->
+      <section class="step" data-step="4" aria-labelledby="s4-title" hidden>
+        <h2 id="s4-title" tabindex="-1"><span class="step-no">STEP 04</span>選擇 AI 虛擬顧問團</h2>
+        <p class="step-intro">選擇要用哪些角色的觀點檢查你的資料。不同職務不一定需要全部角色。</p>
+        <div class="card">
+          <p class="hint"><b>白話：</b>「虛擬顧問團」是讓<strong>同一個 AI</strong>輪流用不同角色的角度思考，像是請一個人分別戴上不同的帽子。<br><b>限制：</b>它不是真的有八位獨立專家，觀點仍可能有盲點，所以建議保留「反方審查員」來挑毛病。</p>
+          <div class="preset-row">
+            <button type="button" class="btn btn-small btn-ghost" data-action="preset" data-preset="quick">快速面試準備（4 位）</button>
+            <button type="button" class="btn btn-small btn-ghost" data-action="preset" data-preset="general">一般完整分析（6 位）</button>
+            <button type="button" class="btn btn-small btn-ghost" data-action="preset" data-preset="all">全部顧問（8 位）</button>
+          </div>
+          <div class="suggest-box" id="advisor-suggest" hidden></div>
+          <fieldset class="field">
+            <legend class="sr-only">顧問角色</legend>
+            <div class="choice-grid choice-grid-2" data-group="advisors" data-options="advisors"></div>
+          </fieldset>
+          <p class="warn-note" id="critic-warning" hidden>你沒有選「反方審查員」。提示詞仍會要求 AI 最後自我檢查，但建議保留這個角色。</p>
+        </div>
+      </section>
+
+      <!-- STEP 05 -->
+      <section class="step" data-step="5" aria-labelledby="s5-title" hidden>
+        <h2 id="s5-title" tabindex="-1"><span class="step-no">STEP 05</span>選擇面試準備成果</h2>
+        <p class="step-intro">只選你需要的。沒有勾選的模組，提示詞就不會要求 AI 產出那部分。</p>
+
+        <div class="card">
+          <h3 class="card-title">輸出版本</h3>
+          <div class="choice-grid choice-grid-2" data-group="outputs" data-options="outputs"></div>
+          <div class="sub-settings" data-show-if="out-private">
+            <p class="sub-label">私人準備版要包含哪些內容</p>
+            <div class="choice-grid" data-group="analysis.privateItems" data-options="privateItems"></div>
+            <p class="hint">薪資談判等內容依你的需要勾選，不勾就不會出現。</p>
+          </div>
+          <p class="hint" id="showcase-note" hidden></p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">分析模組</h3>
+          <div class="preset-row">
+            <button type="button" class="btn btn-small btn-ghost" data-action="modules-all">全部選擇</button>
+            <button type="button" class="btn btn-small btn-ghost" data-action="modules-none">全部取消</button>
+          </div>
+          <div class="module-grid" data-group="modules" data-options="modules"></div>
+        </div>
+
+        <div class="card" data-show-if="module-B">
+          <h3 class="card-title">模組 B｜用哪一種方式觀察營運？</h3>
+          <div class="choice-grid choice-grid-2" data-radio="analysis.canvas" data-options="canvases"></div>
+          <p class="hint"><b>白話：</b><strong>Lean Canvas（精實創業畫布）</strong>用九格表看「解決誰的什麼問題、怎麼賺錢」，適合新創或新事業。<strong>BMC（Business Model Canvas，商業模式畫布）</strong>也是九格表，但更著重公司「靠哪些資源、夥伴、活動」把價值送到客戶手上，適合營運一段時間的企業。政府、學校、醫療機構與非營利組織，通常更適合用「服務流程與組織使命」來看。<br><b>限制：</b>這些都是整理思路的工具，外部求職者只能做「初步觀察」，不等於組織真實狀況。</p>
+        </div>
+
+        <div class="card" data-show-if="module-C">
+          <h3 class="card-title">模組 C｜提案主題</h3>
+          <p class="hint">一般職務可以只著重「理解這份工作的價值」，不一定要提出改善方案。AI 導入只有在你勾選「AI 應用與流程自動化」時才會出現。</p>
+          <div class="choice-grid" data-group="analysis.themes" data-options="themes"></div>
+          <div class="field" data-show-if="theme-custom">
+            <label for="f-theme-custom">自訂提案主題</label>
+            <input id="f-theme-custom" type="text" data-bind="analysis.themeCustom" placeholder="例：新人教育訓練流程">
+          </div>
+        </div>
+
+        <div class="card" data-show-if="module-F">
+          <h3 class="card-title">模組 F｜到職學習與工作計畫</h3>
+          <div class="field">
+            <label for="f-plan">計畫類型</label>
+            <select id="f-plan" data-bind="analysis.plan" data-options="plans"></select>
+          </div>
+          <div class="field" data-show-if="plan-custom">
+            <label for="f-plan-custom">自訂期間</label>
+            <input id="f-plan-custom" type="text" data-bind="analysis.planCustom" placeholder="例：前兩週、前六個月">
+          </div>
+          <p class="hint">新鮮人與基層職務著重熟悉流程與工作品質；技術職著重標準作業與安全；管理職才會加入團隊管理與目標。不需要到職計畫的話，直接取消勾選模組 F。</p>
+        </div>
+
+        <div class="card" data-show-if="module-G">
+          <h3 class="card-title">模組 G｜要製作哪幾張面試圖？</h3>
+          <div class="choice-grid choice-grid-2" data-group="analysis.figs" data-options="figChoices"></div>
+          <p class="hint">可以只做一張、兩張或全部三張。圖的標題會依模組 B、C、F 的設定自動調整。</p>
+          <p class="warn-note" id="figs-warning" hidden>至少選一張圖，或取消勾選模組 G。</p>
+          <div class="field-row">
+            <div class="field">
+              <label for="f-style">圖片風格</label>
+              <select id="f-style" data-bind="chart.style" data-options="styles"></select>
+            </div>
+            <div class="field">
+              <label for="f-size">圖片尺寸</label>
+              <select id="f-size" data-bind="chart.size" data-options="sizes"></select>
+            </div>
+          </div>
+          <div class="field" data-show-if="style-custom">
+            <label for="f-style-custom">自訂風格描述</label>
+            <input id="f-style-custom" type="text" data-bind="chart.customStyle" placeholder="例：北歐清新、低飽和、線條插畫">
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 06 -->
+      <section class="step" data-step="6" aria-labelledby="s6-title" hidden>
+        <h2 id="s6-title" tabindex="-1"><span class="step-no">STEP 06</span>生成與匯出</h2>
+        <p class="step-intro">分兩個階段：先讓 AI 研究分析，再把結果貼回來做成三張圖的繪圖提示詞。本工具不會自動呼叫 AI。</p>
+
+        <div class="card stage-card">
+          <h3 class="card-title"><span class="stage-badge">第一階段</span>產生企業研究與分析提示詞</h3>
+          <ol class="howto">
+            <li>按「產生提示詞」。</li>
+            <li>按下方任一個 AI 按鈕：會先複製提示詞，再開啟新分頁。</li>
+            <li>在 AI 的對話框貼上（Ctrl＋V／長按貼上）並送出。</li>
+            <li>AI 回覆完後，把整段回覆複製起來，貼到下方「第二階段」。</li>
+          </ol>
+          <div id="precheck" class="precheck" hidden></div>
+          <div class="field">
+            <label for="f-scope">生成範圍</label>
+            <select id="f-scope" data-bind="stage1.scope"></select>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" data-action="gen-stage1">產生提示詞</button>
+          </div>
+          <p class="stale-note" id="stage1-stale" role="alert" hidden>資料已更新，請重新生成提示詞。<br><span>下方是用舊資料產生的版本，直接複製可能會用到上一家公司或上一個職缺的內容。</span></p>
+          <div class="field">
+            <label for="out-stage1">提示詞</label>
+            <textarea id="out-stage1" rows="12" data-bind="stage1.prompt" data-count placeholder="按「產生提示詞」後會出現在這裡。你也可以直接修改內容。"></textarea>
+          </div>
+          <div class="ai-warn">
+            <strong>貼到外部 AI 前，請先確認：</strong>提示詞裡沒有企業機密、客戶個資，或身分證字號、電話、地址等敏感個人資料。本工具不會上傳你的資料，但貼到 ChatGPT、Claude、Gemini 之後，資料如何被使用由各平台的隱私政策決定。
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" data-action="copy" data-target="out-stage1">複製提示詞</button>
+            <a class="btn btn-ghost" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" data-action="open-ai" data-ai="ChatGPT">複製並開啟 ChatGPT</a>
+            <a class="btn btn-ghost" href="https://claude.ai/new" target="_blank" rel="noopener noreferrer" data-action="open-ai" data-ai="Claude">複製並開啟 Claude</a>
+            <a class="btn btn-ghost" href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" data-action="open-ai" data-ai="Gemini">複製並開啟 Gemini</a>
+          </div>
+          <p class="hint">建議使用可以上網搜尋的 AI 模式。如果 AI 無法上網，提示詞已要求它明講，不能假裝讀過公司網站。</p>
+        </div>
+
+        <div class="card stage-card">
+          <h3 class="card-title"><span class="stage-badge">第二階段</span>貼回 AI 分析結果，產生三張圖的繪圖提示詞</h3>
+          <div class="field">
+            <label for="f-paste">貼上 AI 的完整回覆</label>
+            <textarea id="f-paste" rows="8" data-bind="stage2.pasted" data-count placeholder="把 AI 的整段回覆貼在這裡。工具會尋找【私人準備版】【面試官展示版】【圖一素材】【圖二素材】【圖三素材】這些標記。重新貼上新的回覆時，沒有對應標記的區塊會被清空，避免殘留上一筆資料。"></textarea>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" data-action="parse">辨識 AI 回覆並填入</button>
+            <button type="button" class="btn btn-ghost" data-action="sample-result" id="sample-btn" hidden>貼上示範 AI 回覆（虛構）</button>
+          </div>
+          <ul id="parse-status" class="parse-status" aria-live="polite"></ul>
+          <ul id="parse-msgs" class="parse-msgs"></ul>
+          <p class="stale-note" data-mismatch hidden></p>
+
+          <h4 class="sub-title">圖表文字編輯區</h4>
+          <p class="hint">產生繪圖提示詞前，請先檢查、修改或刪除下面的文字。一行一個重點；標示「（推測）」的內容請保留標示或刪除。只會顯示 STEP 05 選擇的圖（沒選模組 G 時三張都可手動使用）。</p>
+
+          <div class="fig-grid">
+            <div class="fig-block" data-fig="1">
+              <label for="f-fig1"><b data-fig-title="1">圖一｜企業商業模式觀察圖</b></label>
+              <p class="hint" data-fig-items="1">企業定位、產品服務、客群、商業模式、發展機會</p>
+              <textarea id="f-fig1" rows="7" data-bind="stage2.fig1" data-count></textarea>
+            </div>
+            <div class="fig-block" data-fig="2">
+              <label for="f-fig2"><b data-fig-title="2">圖二｜企業 AI 應用構想圖</b></label>
+              <p class="hint" data-fig-items="2">工作情境、AI 技術、導入步驟、預期效益、風險</p>
+              <textarea id="f-fig2" rows="7" data-bind="stage2.fig2" data-count></textarea>
+            </div>
+            <div class="fig-block" data-fig="3">
+              <label for="f-fig3"><b data-fig-title="3">圖三｜我的能力與職務貢獻圖</b></label>
+              <p class="hint" data-fig-items="3">個人技能、過往經驗、職務適配、30／60／90 天計畫</p>
+              <textarea id="f-fig3" rows="7" data-bind="stage2.fig3" data-count></textarea>
+              <button type="button" class="btn btn-small btn-ghost" data-action="prefill-fig3">用我的個人檔案預填</button>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <div class="field">
+              <label for="f-style2">圖片風格</label>
+              <select id="f-style2" data-bind="chart.style" data-options="styles"></select>
+            </div>
+            <div class="field">
+              <label for="f-size2">圖片尺寸</label>
+              <select id="f-size2" data-bind="chart.size" data-options="sizes"></select>
+            </div>
+            <div class="field" data-show-if="style-custom">
+              <label for="f-style-custom2">自訂風格描述</label>
+              <input id="f-style-custom2" type="text" data-bind="chart.customStyle">
+            </div>
+          </div>
+          <fieldset class="field">
+            <legend>圖上文字的處理方式</legend>
+            <div class="choice-grid" data-radio="chart.textMode" data-options="textModes"></div>
+          </fieldset>
+          <label class="check-line"><input type="checkbox" data-bind="chart.addNote"> 在圖上加入註記「本資料依企業公開資訊整理，屬初步觀察與應用構想，實際情況仍須與企業確認。」</label>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" data-action="gen-figs">產生已選圖表的提示詞</button>
+          </div>
+
+          <div class="fig-out-grid">
+            <div class="fig-out" data-fig-out="1">
+              <div class="fig-out-head"><b><span data-fig-short="1">圖一</span>提示詞</b>
+                <span><button type="button" class="btn btn-small btn-ghost" data-action="gen-fig" data-fig="1">只產生圖一</button>
+                <button type="button" class="btn btn-small btn-secondary" data-action="copy" data-target="out-fig1">複製</button></span></div>
+              <p class="stale-note" data-stale-fig="1" hidden>圖一的素材或樣式已變更，請重新產生此圖提示詞。</p>
+              <textarea id="out-fig1" rows="8" data-bind="stage2.out1" data-count></textarea>
+            </div>
+            <div class="fig-out" data-fig-out="2">
+              <div class="fig-out-head"><b><span data-fig-short="2">圖二</span>提示詞</b>
+                <span><button type="button" class="btn btn-small btn-ghost" data-action="gen-fig" data-fig="2">只產生圖二</button>
+                <button type="button" class="btn btn-small btn-secondary" data-action="copy" data-target="out-fig2">複製</button></span></div>
+              <p class="stale-note" data-stale-fig="2" hidden>圖二的素材或樣式已變更，請重新產生此圖提示詞。</p>
+              <textarea id="out-fig2" rows="8" data-bind="stage2.out2" data-count></textarea>
+            </div>
+            <div class="fig-out" data-fig-out="3">
+              <div class="fig-out-head"><b><span data-fig-short="3">圖三</span>提示詞</b>
+                <span><button type="button" class="btn btn-small btn-ghost" data-action="gen-fig" data-fig="3">只產生圖三</button>
+                <button type="button" class="btn btn-small btn-secondary" data-action="copy" data-target="out-fig3">複製</button></span></div>
+              <p class="stale-note" data-stale-fig="3" hidden>圖三的素材或樣式已變更，請重新產生此圖提示詞。</p>
+              <textarea id="out-fig3" rows="8" data-bind="stage2.out3" data-count></textarea>
+            </div>
+          </div>
+          <p class="hint"><b>小提醒：</b>AI 繪圖工具很容易把中文字畫錯。建議先讓 AI 產生「留白底圖」，再到 Canva 或簡報軟體自己放上文字，避免帶著錯字去面試。</p>
+        </div>
+
+        <div class="card" id="versions-card">
+          <h3 class="card-title">兩種輸出版本：確認、預覽、匯出</h3>
+          <p class="hint">按「辨識 AI 回覆並填入」後，內容會自動放進下面兩個區塊；你也可以直接貼上或修改。兩個版本分開處理，私人內容不會自動放進展示版。</p>
+          <p class="stale-note" data-mismatch hidden></p>
+
+          <section class="version-block ver-private-block" aria-labelledby="ver-a-title">
+            <h4 class="version-title" id="ver-a-title"><span class="ver-tag ver-tag-a">A</span>私人準備版<small>只給自己看，請勿交給面試官</small></h4>
+            <p class="hint">企業潛在風險、能力不足與補強方向、面試可能遇到的困難、薪資談判準備、要向企業確認的問題、模擬面試問題與回答建議。</p>
+            <label for="f-private" class="sr-only">私人準備版內容</label>
+            <textarea id="f-private" rows="8" data-bind="stage2.privateText" data-count placeholder="辨識 AI 回覆後會出現在這裡，也可以直接貼上。"></textarea>
+            <div class="btn-row">
+              <button type="button" class="btn btn-small btn-ghost" data-action="ver-preview" data-kind="private" aria-controls="preview-private">預覽</button>
+              <button type="button" class="btn btn-small btn-secondary" data-action="ver-copy" data-kind="private">複製</button>
+              <button type="button" class="btn btn-small btn-ghost" data-action="ver-download" data-kind="private" data-format="txt">下載 TXT</button>
+              <button type="button" class="btn btn-small btn-ghost" data-action="ver-download" data-kind="private" data-format="md">下載 Markdown</button>
+              <button type="button" class="btn btn-small btn-ghost" data-action="ver-print" data-kind="private">列印</button>
+            </div>
+            <div class="doc-preview" id="preview-private" hidden></div>
+          </section>
+
+          <section class="version-block ver-showcase-block" aria-labelledby="ver-b-title">
+            <h4 class="version-title" id="ver-b-title"><span class="ver-tag ver-tag-b">B</span>面試官展示版<small>正式面試時展示或列印</small></h4>
+            <p class="hint">企業商業模式初步觀察、潛在 AI 應用機會、個人能力與職務貢獻、30／60／90 天到職構想，可附上面試三張圖素材。</p>
+            <p class="confirm-status" id="showcase-status" aria-live="polite"></p>
+            <label for="f-showcase" class="sr-only">面試官展示版內容</label>
+            <textarea id="f-showcase" rows="8" data-bind="stage2.showcaseText" data-count placeholder="辨識 AI 回覆後會出現在這裡，也可以直接貼上。"></textarea>
+            <label class="check-line"><input type="checkbox" data-bind="stage2.showcaseFigs"> 附上面試三張圖素材（圖一～圖三編輯區的內容）</label>
+            <label class="check-line"><input type="checkbox" data-bind="stage2.showcaseNote"> 加入註記「本資料依企業公開資訊整理，屬初步觀察與應用構想，實際情況仍須與企業確認。」</label>
+            <div class="btn-row">
+              <button type="button" class="btn btn-small btn-primary" data-action="ver-preview" data-kind="showcase" aria-controls="preview-showcase-wrap">預覽並確認</button>
+              <button type="button" class="btn btn-small btn-secondary" data-action="ver-copy" data-kind="showcase">複製</button>
+              <button type="button" class="btn btn-small btn-ghost" data-action="ver-download" data-kind="showcase" data-format="txt">下載 TXT</button>
+              <button type="button" class="btn btn-small btn-ghost" data-action="ver-download" data-kind="showcase" data-format="md">下載 Markdown</button>
+              <button type="button" class="btn btn-small btn-ghost" data-action="ver-print" data-kind="showcase">列印</button>
+            </div>
+            <div class="preview-wrap" id="preview-showcase-wrap" hidden>
+              <p class="preview-label">列印前預覽（實際列印只會印出這份文件，不含網站按鈕）</p>
+              <div class="doc-preview" id="preview-showcase"></div>
+              <div class="risk-box" id="showcase-risks" aria-live="polite"></div>
+              <fieldset class="checklist">
+                <legend>展示或列印前，請逐項確認</legend>
+                <label class="check-line"><input type="checkbox" class="chk-item"> 公司名稱及職缺正確</label>
+                <label class="check-line"><input type="checkbox" class="chk-item"> 沒有包含私人準備內容（風險評論、薪資策略、個人弱點）</label>
+                <label class="check-line"><input type="checkbox" class="chk-item"> 沒有包含未經查證就寫成事實的企業資訊</label>
+                <label class="check-line"><input type="checkbox" class="chk-item"> 沒有錯字或錯誤數據</label>
+                <label class="check-line"><input type="checkbox" class="chk-item"> 沒有不必要的個人資料（電話、地址、身分證字號等）</label>
+                <label class="check-line"><input type="checkbox" class="chk-item"> 推測都寫成「初步觀察／待確認」，沒有誤寫成企業實際現況</label>
+              </fieldset>
+              <button type="button" class="btn btn-primary" data-action="showcase-confirm" id="showcase-confirm" disabled>確認無誤，標示為可展示</button>
+            </div>
+          </section>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">提示詞匯出</h3>
+          <p class="hint">匯出第一階段的分析提示詞（全部或單一模組，依上方「生成範圍」）和三張圖的繪圖提示詞。</p>
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" data-action="copy-all">複製全部提示詞</button>
+            <button type="button" class="btn btn-ghost" data-action="download" data-format="txt">下載提示詞 TXT</button>
+            <button type="button" class="btn btn-ghost" data-action="download" data-format="md">下載提示詞 Markdown</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">資料管理</h3>
+          <label class="check-line"><input type="checkbox" id="storage-toggle"> 在這台裝置的瀏覽器保存我的資料（本機儲存）</label>
+          <p class="hint">開啟後，資料只存在這個瀏覽器，不會上傳。共用電腦請不要開啟。</p>
+          <div class="btn-row">
+            <button type="button" class="btn btn-ghost" data-action="export-json">匯出專案 JSON</button>
+            <button type="button" class="btn btn-ghost" data-action="import-json">匯入專案 JSON</button>
+            <input type="file" id="import-file" accept=".json,application/json" hidden>
+          </div>
+          <div class="btn-row">
+            <label for="demo-select" class="sr-only">選擇示範案例</label>
+<select id="demo-select" class="inline-select demo-select" data-options="demos"></select>
+            <button type="button" class="btn btn-ghost" data-action="load-demo-select">載入示範案例</button>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-danger" data-action="clear">清除所有資料</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="step-nav">
+        <button type="button" class="btn btn-ghost" data-action="prev" id="btn-prev">上一步</button>
+        <button type="button" class="btn btn-primary" data-action="next" id="btn-next">下一步</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-brand">白話實驗室 baihua</p>
+    <p>世界很吵，我們只說人話。</p>
+    <p class="footer-link">品牌官網：<a href="https://baihualab.tw" target="_blank" rel="noopener noreferrer">https://baihualab.tw</a></p>
+    <p class="footer-ver">版本 V<span id="app-version">1.0.2</span></p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title"></h2>
+      <div id="modal-body" class="modal-body"></div>
+      <div class="btn-row modal-actions">
+        <button type="button" class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button type="button" class="btn btn-primary" id="modal-ok">確定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="print-area" class="print-area" aria-hidden="true"></div>
+
+  <script src="data.js?v=1.0.2"></script>
+  <script src="app.js?v=1.0.2"></script>
+</body>
+</html>
